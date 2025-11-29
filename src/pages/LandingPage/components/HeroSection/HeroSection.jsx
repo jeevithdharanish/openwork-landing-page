@@ -9,6 +9,12 @@ const HeroSection = () => {
     navigate('/whitepaper');
   };
 
+  const handleHome = () => {
+    document.getElementById('lp-2-section').scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
   const handleDirectContract = () => {
     document.getElementById('lp-5-section').scrollIntoView({ 
       behavior: 'smooth' 
@@ -33,6 +39,18 @@ const HeroSection = () => {
     });
   };
 
+  const handleJobProgress = () => {
+    document.getElementById('lp-8-section').scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
+  const handleDisputes = () => {
+    document.getElementById('lp-9-section').scrollIntoView({ 
+      behavior: 'smooth' 
+    });
+  };
+
   return (
     <section className="lp-section lp-1-section">
       <main className="landing-main">
@@ -52,14 +70,23 @@ const HeroSection = () => {
             className="hero-circle-image"
           />
           
-          {/* Icon Buttons - positioned relative to the 1280px container */}
+          {/* Icon Buttons - positioned around the circle */}
+          {/* Home - Top Center */}
+          <button 
+            className="hero-icon-btn hero-icon-home"
+            onClick={handleHome}
+            aria-label="Home"
+          >
+            <img src="/assets/sidebar-icon-1.svg" alt="" />
+          </button>
+
           {/* Direct Contract - Top Left */}
           <button 
             className="hero-icon-btn hero-icon-direct"
             onClick={handleDirectContract}
             aria-label="Direct Contract"
           >
-            <img src="/assets/sidebar-icon-5.svg" alt="" />
+            <img src="/assets/sidebar-icon-3.svg" alt="" />
           </button>
 
           {/* DAO - Top Right */}
@@ -86,7 +113,25 @@ const HeroSection = () => {
             onClick={handleBrowseJobs}
             aria-label="Browse Jobs"
           >
-            <img src="/assets/hero-search-icon.svg" alt="" />
+            <img src="/assets/search-icon.svg" alt="" />
+          </button>
+
+          {/* Job Progress - Bottom Left */}
+          <button 
+            className="hero-icon-btn hero-icon-progress"
+            onClick={handleJobProgress}
+            aria-label="Job Progress"
+          >
+            <img src="/assets/sidebar-icon-4.svg" alt="" />
+          </button>
+
+          {/* Disputes - Bottom Right */}
+          <button 
+            className="hero-icon-btn hero-icon-disputes"
+            onClick={handleDisputes}
+            aria-label="Disputes"
+          >
+            <img src="/assets/sidebar-icon-5.svg" alt="" />
           </button>
         </div>
 
