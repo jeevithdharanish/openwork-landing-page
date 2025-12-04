@@ -7,6 +7,7 @@ const LandingSidebar = () => {
   const [sidebarVisible, setSidebarVisible] = useState(true);
   const [isAnimating, setIsAnimating] = useState(false);
   const [isExpanded, setIsExpanded] = useState(false); // Circle expanded state (after first click)
+  const [isMobile, setIsMobile] = useState(false); // Track mobile view
   const circleRef = useRef(null);
   const sidebarRef = useRef(null); // Ref for direct DOM manipulation to avoid jiggle
 
@@ -22,6 +23,32 @@ const LandingSidebar = () => {
 
   // Get the index of the currently active section
   const activeIndex = sidebarItems.findIndex(item => item.section === activeSection);
+
+  // Get 3 dynamic icons for mobile bottom nav based on active section
+  const getMobileNavItems = () => {
+    const totalItems = sidebarItems.length;
+    
+    // Always show: previous, current, next (wrapping around)
+    const prevIndex = (activeIndex - 1 + totalItems) % totalItems;
+    const nextIndex = (activeIndex + 1) % totalItems;
+    
+    return [
+      { ...sidebarItems[prevIndex], position: 'prev' },
+      { ...sidebarItems[activeIndex], position: 'current' },
+      { ...sidebarItems[nextIndex], position: 'next' }
+    ];
+  };
+
+  // Check for mobile view
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth <= 480);
+    };
+    
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
 
   /** ---------------------------------------------------------
    *  GET POINT ON CIRCLE - For hero section display
@@ -256,124 +283,148 @@ const LandingSidebar = () => {
   return (
     <aside 
       ref={sidebarRef}
-      className={`landing-sidebar ${sidebarVisible ? "visible" : ""} ${isAnimating ? "animating" : ""} ${isExpanded ? "expanded" : ""}`}
+      className={`landing-sidebar ${sidebarVisible ? "visible" : ""} ${isAnimating ? "animating" : ""} ${isExpanded ? "expanded" : ""} ${isMobile ? "mobile-bottom-nav" : ""}`}
     >
-      {/* Circle SVG - always visible */}
-      <svg 
-        ref={circleRef}
-        className="sidebar-circle visible" 
-        viewBox="0 0 600 600" 
-        preserveAspectRatio="xMidYMid meet"
-      >
-        <defs>
-          {/* Base circle gradient - very subtle light gray/blue like in Figma */}
-          <linearGradient id="circleBaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#a8c0ff" stopOpacity="0.4" />
-            <stop offset="50%" stopColor="#c0d0ff" stopOpacity="0.35" />
-            <stop offset="100%" stopColor="#a8c0ff" stopOpacity="0.4" />
-          </linearGradient>
+      {/* Circle SVG - hidden on mobile */}
+      {!isMobile && (
+        <svg 
+          ref={circleRef}
+          className="sidebar-circle visible" 
+          viewBox="0 0 600 600" 
+          preserveAspectRatio="xMidYMid meet"
+        >
+          <defs>
+            {/* Base circle gradient - very subtle light gray/blue like in Figma */}
+            <linearGradient id="circleBaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%" stopColor="#a8c0ff" stopOpacity="0.4" />
+              <stop offset="50%" stopColor="#c0d0ff" stopOpacity="0.35" />
+              <stop offset="100%" stopColor="#a8c0ff" stopOpacity="0.4" />
+            </linearGradient>
+            
+            {/* Glow gradient for traveling arc - matches sidebar curve */}
+            <linearGradient id="circleGlowGradient" gradientUnits="userSpaceOnUse" x1="300" y1="30" x2="300" y2="570">
+              <stop offset="0%" stopColor="#4D7FFF" stopOpacity="0" />
+              <stop offset="40%" stopColor="#4D7FFF" stopOpacity="0.8" />
+              <stop offset="50%" stopColor="#1246FF" stopOpacity="1" />
+              <stop offset="60%" stopColor="#4D7FFF" stopOpacity="0.8" />
+              <stop offset="100%" stopColor="#4D7FFF" stopOpacity="0" />
+            </linearGradient>
+            
+            {/* Glow filter for the arc */}
+            <filter id="glowFilter" x="-50%" y="-50%" width="200%" height="200%">
+              <feGaussianBlur stdDeviation="6" result="blur"/>
+              <feMerge>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="blur"/>
+                <feMergeNode in="SourceGraphic"/>
+              </feMerge>
+            </filter>
+          </defs>
           
-          {/* Glow gradient for traveling arc - matches sidebar curve */}
-          <linearGradient id="circleGlowGradient" gradientUnits="userSpaceOnUse" x1="300" y1="30" x2="300" y2="570">
-            <stop offset="0%" stopColor="#4D7FFF" stopOpacity="0" />
-            <stop offset="40%" stopColor="#4D7FFF" stopOpacity="0.8" />
-            <stop offset="50%" stopColor="#1246FF" stopOpacity="1" />
-            <stop offset="60%" stopColor="#4D7FFF" stopOpacity="0.8" />
-            <stop offset="100%" stopColor="#4D7FFF" stopOpacity="0" />
-          </linearGradient>
+          {/* Base circle - subtle static stroke */}
+          <circle 
+            cx="300" 
+            cy="300" 
+            r="270" 
+            stroke="url(#circleBaseGradient)" 
+            strokeWidth="1.5" 
+            fill="none"
+            className="circle-base"
+          />
           
-          {/* Glow filter for the arc */}
-          <filter id="glowFilter" x="-50%" y="-50%" width="200%" height="200%">
-            <feGaussianBlur stdDeviation="6" result="blur"/>
-            <feMerge>
-              <feMergeNode in="blur"/>
-              <feMergeNode in="blur"/>
-              <feMergeNode in="SourceGraphic"/>
-            </feMerge>
-          </filter>
-        </defs>
-        
-        {/* Base circle - subtle static stroke */}
-        <circle 
-          cx="300" 
-          cy="300" 
-          r="270" 
-          stroke="url(#circleBaseGradient)" 
-          strokeWidth="1.5" 
-          fill="none"
-          className="circle-base"
-        />
-        
-        {/* Traveling glow arc - matches sidebar curve glow style */}
-        <circle 
-          cx="300" 
-          cy="300" 
-          r="270" 
-          stroke="url(#circleGlowGradient)" 
-          strokeWidth="3" 
-          fill="none"
-          strokeLinecap="round"
-          className="circle-glow-arc"
-          filter="url(#glowFilter)"
-        />
-      </svg>
+          {/* Traveling glow arc - matches sidebar curve glow style */}
+          <circle 
+            cx="300" 
+            cy="300" 
+            r="270" 
+            stroke="url(#circleGlowGradient)" 
+            strokeWidth="3" 
+            fill="none"
+            strokeLinecap="round"
+            className="circle-glow-arc"
+            filter="url(#glowFilter)"
+          />
+        </svg>
+      )}
 
+      {/* Navigation Icons - Desktop (all items) */}
+      {!isMobile && (
+        <nav className="sidebar-nav">
+          {sidebarItems.map((item, index) => {
+            const position = getIconPosition(index);
+            const isActive = activeSection === item.section;
+            
+            const iconSize = 36;
+            const xOffset = iconSize / 2;
+            const yOffset = iconSize / 2;
 
+            // Circle center is always 300,300 (CSS scale handles size change)
+            const circleCenter = { x: 300, y: 300 };
+            
+            // Counter-scale icons when expanded (container scales 2.5x, so icons need 1/2.5 = 0.4)
+            const iconScale = isExpanded ? 0.4 : 1;
+            
+            // Calculate final position
+            const finalX = circleCenter.x + position.x - xOffset;
+            const finalY = circleCenter.y + position.y - yOffset;
 
-      {/* Navigation Icons */}
-      <nav className="sidebar-nav">
-        {sidebarItems.map((item, index) => {
-          const position = getIconPosition(index);
-          const isActive = activeSection === item.section;
-          
-          const iconSize = 36;
-          const xOffset = iconSize / 2;
-          const yOffset = iconSize / 2;
+            return (
+              <motion.button
+                key={item.id}
+                className={`sidebar-nav-item ${isActive ? "active" : ""}`}
+                onClick={() => scrollTo(item.section)}
+                style={{
+                  transformOrigin: `${iconSize / 2}px ${iconSize / 2}px`
+                }}
+                initial={{
+                  x: finalX,
+                  y: finalY,
+                  opacity: 1,
+                  scale: iconScale,
+                }}
+                animate={{
+                  x: finalX,
+                  y: finalY,
+                  opacity: 1,
+                  scale: iconScale,
+                }}
+                transition={{
+                  type: "tween",
+                  duration: 0.005,
+                  ease: [0.22, 1, 0.36, 1],
+                }}
+              >
+                <div className="icon-wrapper">
+                  <img src={item.icon} alt={item.label} />
+                </div>
+                <span className="nav-label">{item.label}</span>
+              </motion.button>
+            );
+          })}
+        </nav>
+      )}
 
-          // Circle center is always 300,300 (CSS scale handles size change)
-          const circleCenter = { x: 300, y: 300 };
-          
-          // Counter-scale icons when expanded (container scales 2.5x, so icons need 1/2.5 = 0.4)
-          const iconScale = isExpanded ? 0.4 : 1;
-          
-          // Calculate final position
-          const finalX = circleCenter.x + position.x - xOffset;
-          const finalY = circleCenter.y + position.y - yOffset;
-
-          return (
-            <motion.button
-              key={item.id}
-              className={`sidebar-nav-item ${isActive ? "active" : ""}`}
-              onClick={() => scrollTo(item.section)}
-              style={{
-                transformOrigin: `${iconSize / 2}px ${iconSize / 2}px`
-              }}
-              initial={{
-                x: finalX,
-                y: finalY,
-                opacity: 1,
-                scale: iconScale,
-              }}
-              animate={{
-                x: finalX,
-                y: finalY,
-                opacity: 1,
-                scale: iconScale,
-              }}
-              transition={{
-                type: "tween",
-                duration: 0.005,
-                ease: [0.22, 1, 0.36, 1],
-              }}
-            >
-              <div className="icon-wrapper">
-                <img src={item.icon} alt={item.label} />
-              </div>
-              <span className="nav-label">{item.label}</span>
-            </motion.button>
-          );
-        })}
-      </nav>
+      {/* Mobile Bottom Navigation - 3 dynamic icons */}
+      {isMobile && (
+        <nav className="mobile-bottom-nav-container">
+          {getMobileNavItems().map((item) => {
+            const isActive = item.position === 'current';
+            
+            return (
+              <button
+                key={`mobile-${item.id}-${item.position}`}
+                className={`mobile-nav-item ${isActive ? "active" : ""} ${item.position}`}
+                onClick={() => scrollTo(item.section)}
+              >
+                <div className="mobile-icon-wrapper">
+                  <img src={item.icon} alt={item.label} />
+                </div>
+                {isActive && <span className="mobile-nav-label">{item.label}</span>}
+              </button>
+            );
+          })}
+        </nav>
+      )}
     </aside>
   );
 };

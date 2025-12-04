@@ -96,6 +96,11 @@
   height: 16px;
 }
 
+/* Mobile Hero Semicircle - hidden on desktop */
+.mobile-hero-semicircle {
+  display: none;
+}
+
 /* Responsive Design */
 @media (max-width: 1024px) {
   .hero-center-content {
@@ -137,18 +142,139 @@
 }
 
 @media (max-width: 480px) {
+  /* Mobile Semicircle - only on phones (top half only) */
+  .mobile-hero-semicircle {
+    display: block;
+    position: absolute;
+    top: 130px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 150%;
+    max-width: 600px;
+    height: 200px;
+    z-index: 1;
+    pointer-events: none;
+    overflow: hidden;
+  }
+
+  .mobile-hero-arc-svg {
+    width: 100%;
+    height: auto;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+  /* Base arc line - hidden by default, shows when glow passes */
+  .hero-arc-base {
+    opacity: 0;
+    stroke-dasharray: 200 931;
+    stroke-dashoffset: 0;
+    animation: heroArcTrailShow 6s linear infinite;
+  }
+
+  @keyframes heroArcTrailShow {
+    0% {
+      stroke-dashoffset: 50;
+      opacity: 0.5;
+    }
+    100% {
+      stroke-dashoffset: -1081;
+      opacity: 0;
+    }
+  }
+
+  /* Traveling glow - travels around the full circle */
+  .hero-arc-glow {
+    stroke-dasharray: 200 931;
+    stroke-dashoffset: 0;
+    animation: heroArcGlowTravel 6s linear infinite;
+  }
+
+  @keyframes heroArcGlowTravel {
+    0% {
+      stroke-dashoffset: 0;
+    }
+    100% {
+      stroke-dashoffset: -1131;
+    }
+  }
+
+  /* Icon buttons on the arc */
+  .mobile-arc-icon {
+    position: absolute;
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #FFFFFF;
+    border: 1.5px solid rgba(18, 70, 255, 0.2);
+    box-shadow: 0px 4px 12px rgba(18, 70, 255, 0.15);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    z-index: 5;
+    pointer-events: auto;
+  }
+
+  .mobile-arc-icon img {
+    width: 16px;
+    height: 16px;
+  }
+
+  .mobile-arc-icon:hover {
+    transform: scale(1.1);
+    box-shadow: 0px 6px 16px rgba(18, 70, 255, 0.25);
+  }
+
+  /* Left icon - Notification (positioned on left part of top arc) */
+  .mobile-arc-icon-left {
+    left: 18%;
+    top: 110px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Center icon - Bot (positioned at top center of arc) */
+  .mobile-arc-icon-center {
+    left: 50%;
+    top: 30px;
+    transform: translate(-50%, -50%);
+  }
+
+  /* Right icon - Settings (positioned on right part of top arc) */
+  .mobile-arc-icon-right {
+    right: 18%;
+    top: 110px;
+    transform: translate(50%, -50%);
+  }
+
   .hero-center-content {
-    gap: 32px;
+    gap: 24px;
+    padding: 0 20px;
+    max-width: 340px;
+  }
+
+  .hero-text-content {
+    text-align: center;
+    gap: 12px;
   }
 
   .hero-main-heading {
-    font-size: 28px;
-    line-height: 36px;
+    font-size: 24px;
+    line-height: 30px;
+    text-align: center;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
   .hero-main-description {
-    font-size: 13px;
-    line-height: 20px;
+    font-size: 14px;
+    line-height: 22px;
+    text-align: center;
+    color: #767676;
+    max-width: 100%;
+    margin: 0 auto;
   }
 
   .hero-cta-button {
